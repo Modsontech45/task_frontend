@@ -4,7 +4,7 @@ import { UpdatePayload } from '../api/activities';
 
 interface Props {
   block: Block;
-  onUpdate: (id: string, payload: UpdatePayload) => Promise<void>;
+  onUpdate: (id: string, payload: UpdatePayload) => Promise<unknown>;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
