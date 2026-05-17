@@ -1,6 +1,23 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+
+function useNotifPermission() {
+  const [permission, setPermission] = useState<NotificationPermission>(
+    'Notification' in window ? Notification.permission : 'denied'
+  );
+  const request = async () => {
+    if (!('Notification' in window)) return;
+    const result = await Notification.requestPermission();
+    setPermission(result);
+  };
+  useEffect(() => {
+    if (!('Notification' in window)) return;
+    setPermission(Notification.permission);
+  }, []);
+  return { permission, request };
+}
 
 const links = [
   { to: '/',          label: "Aujourd'hui", short: 'Accueil',  icon: '🏠' },
@@ -16,6 +33,7 @@ const links = [
 export function Sidebar() {
   const { darkMode, toggleDark } = useApp();
   const { user, logout } = useAuth();
+  const { permission, request } = useNotifPermission();
 
   return (
     <aside className="hidden md:flex flex-col w-56 lg:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen sticky top-0 shrink-0">
@@ -66,6 +84,21 @@ export function Sidebar() {
           <span>{darkMode ? '☀️' : '🌙'}</span>
           <span>{darkMode ? 'Mode clair' : 'Mode sombre'}</span>
         </button>
+        {permission !== 'granted' && permission !== 'denied' && (
+          <button
+            onClick={request}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-sm text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-950/20 transition-colors"
+          >
+            <span>🔔</span>
+            <span>Activer les alertes</span>
+          </button>
+        )}
+        {permission === 'granted' && (
+          <div className="flex items-center gap-3 px-3 py-2 text-sm text-green-600 dark:text-green-400">
+            <span>🔔</span>
+            <span>Alertes activées</span>
+          </div>
+        )}
         {user && (
           <button
             onClick={logout}
@@ -84,6 +117,7 @@ export function Sidebar() {
 export function MobileHeader() {
   const { darkMode, toggleDark } = useApp();
   const { user } = useAuth();
+  const { permission, request } = useNotifPermission();
 
   return (
     <header
@@ -94,7 +128,16 @@ export function MobileHeader() {
         <span className="text-xl">📅</span>
         <span className="font-black text-base text-gray-900 dark:text-white tracking-tight">MyDayAI</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
+        {permission !== 'granted' && permission !== 'denied' && (
+          <button
+            onClick={request}
+            title="Activer les notifications"
+            className="p-1.5 rounded-lg text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-950/20 transition-colors"
+          >
+            🔔
+          </button>
+        )}
         {user && (
           <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
             {user.name.charAt(0).toUpperCase()}

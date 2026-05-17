@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { Sidebar, MobileHeader, BottomNav } from './NavBar';
+import NotificationManager from './NotificationManager';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
@@ -22,6 +23,9 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Mobile: fixed bottom tab bar */}
       <BottomNav />
+
+      {/* Runs silently in background — no UI */}
+      <NotificationManager />
     </div>
   );
 }
